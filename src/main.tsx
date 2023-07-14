@@ -12,6 +12,7 @@ import { Provider } from "jotai";
 import { queryClientAtom } from "jotai-tanstack-query";
 import { useHydrateAtoms } from "jotai/utils";
 import { appStore } from "./stores";
+import { DevTools as JotaiDevtools } from "jotai-devtools";
 
 const queryClient = new QueryClient();
 
@@ -51,9 +52,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <Provider store={appStore}>
         <HydrateAtoms>
           <RouterProvider router={router} />
+          <JotaiDevtools store={appStore} />
           <ReactQueryDevtools />
         </HydrateAtoms>
       </Provider>
+      <JotaiDevtools store={appStore} />
     </QueryClientProvider>
   </React.StrictMode>
 );

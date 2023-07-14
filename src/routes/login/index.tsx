@@ -1,10 +1,15 @@
-import { useLogin, sessionAtom } from "@/stores/auth";
+import {
+  useLogin,
+  sessionAtom,
+  routeAfterAuthenticationAtom,
+} from "@/stores/auth";
 import { useAtomValue } from "jotai";
 import { Navigate } from "react-router-dom";
 
 export default function LoginRoute() {
   const { login, isLoading } = useLogin();
   const session = useAtomValue(sessionAtom);
+  const redirectAfterLogin = useAtomValue(routeAfterAuthenticationAtom);
 
   const submitHandler = () => {
     void login([{ email: "validkeys@gmail.com", password: "hello" }]);
@@ -15,12 +20,13 @@ export default function LoginRoute() {
   }
 
   if (session.isAuthenticated) {
-    return <Navigate replace to="/" />;
+    return <Navigate replace to={redirectAfterLogin} />;
   }
 
   return (
     <>
       <div>{session.isAuthenticated ? "Authenticated" : "Unauthenticated"}</div>
+      <div>Redirect after login: {redirectAfterLogin}</div>
       <button type="button" onClick={submitHandler}>
         Login
       </button>

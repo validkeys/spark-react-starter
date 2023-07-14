@@ -19,27 +19,37 @@ export interface LoginCredentials {
 }
 
 export const isAuthenticatedAtom = atom(false);
+isAuthenticatedAtom.debugLabel = "auth.isAuthenticated";
 export const authenticatedUserAtom = atom<User | null>(null);
+authenticatedUserAtom.debugLabel = "auth.authenticatedUser";
 export const sessionTokenAtom = atomWithStorage<string | null>(
   "sparkToken",
   null
 );
+sessionTokenAtom.debugLabel = "auth.sessionToken";
+
+export const routeAfterAuthenticationAtom = atom("/");
+routeAfterAuthenticationAtom.debugLabel = "auth.routeAfterAuthentication";
 
 const fetchers = {
-  login: async (
+  create: async (
     credentials: LoginCredentials
   ): Promise<AuthenticatedResponse> => {
-    await new Promise((r) => setTimeout(r, 1000));
+    // await new Promise((r) => setTimeout(r, 1000));
     const result = await axios.post<AuthenticatedResponse>(
       "/api/v1/sessions",
       credentials
     );
     return result.data;
   },
-  getSession: async (): Promise<AuthenticatedResponse> => {
-    await new Promise((r) => setTimeout(r, 1000));
+  get: async (): Promise<AuthenticatedResponse> => {
+    // await new Promise((r) => setTimeout(r, 1000));
     const result = await axios.get<AuthenticatedResponse>("/api/v1/sessions");
     return result.data;
+  },
+  destroy: async (): Promise<null> => {
+    await axios.delete("/api/v1/sessions");
+    return null;
   },
 };
 
@@ -48,20 +58,22 @@ export const sessionAtom = atom((get) => ({
   user: get(authenticatedUserAtom),
   sessionToken: get(sessionTokenAtom),
 }));
+sessionAtom.debugLabel = "auth.session";
 
 const [, loginQueryAtom] = atomsWithMutation(() => ({
   mutationKey: ["login"],
-  mutationFn: fetchers.login,
+  mutationFn: fetchers.create,
   onSuccess(data) {
     console.log("onSuccess", data);
     actions.onAuthenticated(data);
   },
 }));
+loginQueryAtom.debugLabel = "auth.loginQuery";
 
 const [, getSessionQueryAtom] = atomsWithQuery<AuthenticatedResponse>(
   (get) => ({
     queryKey: ["session.get", get(sessionTokenAtom)],
-    queryFn: fetchers.getSession,
+    queryFn: fetchers.get,
     retry: false,
     onSuccess(data) {
       console.log("checking session!");
@@ -69,6 +81,17 @@ const [, getSessionQueryAtom] = atomsWithQuery<AuthenticatedResponse>(
     },
   })
 );
+getSessionQueryAtom.debugLabel = "auth.getSessionQuery";
+
+const [, logoutQueryAtom] = atomsWithMutation(() => ({
+  mutationKey: ["logout"],
+  mutationFn: fetchers.destroy,
+  onSuccess(data) {
+    console.log("onSuccess", data);
+    actions.onUnauthenticated();
+  },
+}));
+logoutQueryAtom.debugLabel = "auth.logoutQuery";
 
 export const actions = {
   onAuthenticated(response: AuthenticatedResponse) {
@@ -88,6 +111,11 @@ export const actions = {
 export const useLogin = () => {
   const [loginState, login] = useAtom(loginQueryAtom);
   return { login, ...loginState };
+};
+
+export const useLogout = () => {
+  const [logoutState, logout] = useAtom(logoutQueryAtom);
+  return { logout, ...logoutState };
 };
 
 export const useSession = () => {

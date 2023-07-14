@@ -21,6 +21,7 @@
     "react-router-dom": "^6.14.1"
   },
   "devDependencies": {
+    "@emotion/react": "^11.11.1",
     "@tailwindcss/forms": "^0.5.3",
     "@tanstack/react-query-devtools": "^4.29.23",
     "@types/axios": "^0.14.0",
@@ -36,6 +37,7 @@
     "eslint": "^8.44.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.1",
+    "jotai-devtools": "^0.6.0",
     "jwt-decode": "^3.1.2",
     "jwt-encode": "^1.0.1",
     "msw": "^1.2.2",

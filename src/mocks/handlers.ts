@@ -64,6 +64,10 @@ const sessionGet = rest.get("/api/v1/sessions", (req, res, ctx) => {
   );
 });
 
+const sessionDestroy = rest.delete("/api/v1/sessions", (req, res, ctx) => {
+  return res(ctx.status(204));
+});
+
 interface PostBody {
   email: string;
   password: string;
@@ -88,4 +92,4 @@ const sessionPost = rest.post<PostBody>(
   }
 );
 
-export const handlers = [sessionGet, sessionPost];
+export const handlers = [sessionGet, sessionPost, sessionDestroy];
