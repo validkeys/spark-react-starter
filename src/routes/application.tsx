@@ -13,20 +13,5 @@ export default function Application() {
     void logout([undefined]);
   };
 
-  return (
-    <div>
-      My App{" "}
-      {session.isAuthenticated ? (
-        <div>
-          Authenticated <button onClick={handleLogout}>Logout</button>
-        </div>
-      ) : (
-        <div>UnAuthenticated</div>
-      )}
-      <div>{session.isAuthenticated ? "Authenticated" : "Unauthenticated"}</div>
-      <div className="bg-red-50">
-        <Outlet />
-      </div>
-    </div>
-  );
+  return <Outlet />;
 }
