@@ -14,12 +14,18 @@ dependencies:
   axios:
     specifier: ^1.4.0
     version: 1.4.0
+  inflection:
+    specifier: ^2.0.1
+    version: 2.0.1
   jotai:
     specifier: ^2.2.2
     version: 2.2.2(react@18.2.0)
   jotai-tanstack-query:
     specifier: ^0.7.1
     version: 0.7.1(@tanstack/query-core@4.29.19)(jotai@2.2.2)
+  lodash.flatten:
+    specifier: ^4.4.0
+    version: 4.4.0
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -52,6 +58,9 @@ devDependencies:
   '@types/jwt-encode':
     specifier: ^1.0.0
     version: 1.0.0
+  '@types/lodash.flatten':
+    specifier: ^4.4.7
+    version: 4.4.7
   '@types/react':
     specifier: ^18.2.14
     version: 18.2.14
@@ -1126,6 +1135,12 @@ packages:
 
   /@types/jwt-encode@1.0.0:
     resolution: {integrity: sha512-DXsCDp3CwN7S+f4TjLs+EN9Gf7AqdO3PqQYITQrIMHORlEbdW7nSY3W2VS5eo8dAku9/Si8/CXYxL4IS3FH2jg==}
+    dev: true
+
+  /@types/lodash.flatten@4.4.7:
+    resolution: {integrity: sha512-6yyP/mHEKL2sa86V61F7TnEcUKlLML9+aWI7TCKvnS4SFt7RD4zTVwkdDgluOJqxVkwZ/2z7HvtRs/7j/Uru7g==}
+    dependencies:
+      '@types/lodash': 4.14.195
     dev: true
 
   /@types/lodash@4.14.195:
@@ -2278,6 +2293,11 @@ packages:
     engines: {node: '>=0.8.19'}
     dev: true
 
+  /inflection@2.0.1:
+    resolution: {integrity: sha512-wzkZHqpb4eGrOKBl34xy3umnYHx8Si5R1U4fwmdxLo5gdH6mEK8gclckTj/qWqy4Je0bsDYe/qazZYuO7xe3XQ==}
+    engines: {node: '>=14.0.0'}
+    dev: false
+
   /inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
     dependencies:
@@ -2521,6 +2541,7 @@ packages:
       chalk: 2.4.2
       diff-match-patch: 1.0.5
     dev: true
+    bundledDependencies: []
 
   /jwt-decode@3.1.2:
     resolution: {integrity: sha512-UfpWE/VZn0iP50d8cz9NrZLM9lSWhcJ+0Gt/nm4by88UL+J1SiKN8/5dkjMmbEzwL2CAe+67GsegCbIKtbp75A==}
@@ -2559,6 +2580,10 @@ packages:
   /lodash.curry@4.1.1:
     resolution: {integrity: sha512-/u14pXGviLaweY5JI0IUzgzF2J6Ne8INyzAZjImcryjgkZ+ebruBxy2/JaOOkTqScddcYtakjhSaeemV8lR0tA==}
     dev: true
+
+  /lodash.flatten@4.4.0:
+    resolution: {integrity: sha512-C5N2Z3DgnnKr0LOpv/hKCgKdb7ZZwafIrsesve6lmzvZIRZRGaZ/l6Q8+2W7NaT+ZwO3fFlSCzCzrDCFdJfZ4g==}
+    dev: false
 
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}

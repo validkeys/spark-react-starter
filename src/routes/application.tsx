@@ -1,17 +1,25 @@
-import { Outlet } from "react-router-dom";
-import { useLogout, useSession } from "@/stores/auth";
+import { Outlet } from "react-router-dom"
+import { useSession } from "@/stores/auth"
+import { ReactNode } from "react"
 
-export default function Application() {
-  const { session, isLoading } = useSession();
-  const { logout } = useLogout();
+const SessionMonitor = ({ children }: { children: ReactNode }) => {
+  const { isLoading, isSuccess, data, onAuthenticated } = useSession()
 
-  if (isLoading) {
-    return <div>Checking Authentication</div>;
+  if (isSuccess) {
+    onAuthenticated(data)
   }
 
-  const handleLogout = () => {
-    void logout([undefined]);
-  };
+  if (isLoading) {
+    return <div>Initial Load of Session</div>
+  }
 
-  return <Outlet />;
+  return children
+}
+
+export default function Application() {
+  return (
+    <SessionMonitor>
+      <Outlet />
+    </SessionMonitor>
+  )
 }
