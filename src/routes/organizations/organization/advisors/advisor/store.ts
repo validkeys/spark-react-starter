@@ -1,15 +1,17 @@
 import { atomsWithQuery } from "jotai-tanstack-query"
 import axios from "../../../../../utils/fetch"
 import { AdvisorApiResponse } from "@/types"
-import { atom, useAtomValue } from "jotai"
-import { currentOrganizationIdAtom } from "../../store"
+import { useAtomValue } from "jotai"
+import {
+  contextAdvisorIdAtom,
+  contextOrganizationIdAtom,
+} from "@/stores/context"
 
 // Atoms
-const currentAdvisorIdAtom = atom<string | null>(null)
 
 const [, currentAdvisorQueryAtom] = atomsWithQuery((get) => {
-  const organizationId = get(currentOrganizationIdAtom)
-  const advisorId = get(currentAdvisorIdAtom)
+  const organizationId = get(contextOrganizationIdAtom)
+  const advisorId = get(contextAdvisorIdAtom)
   return {
     ...advisorQuery(organizationId as string, advisorId as string),
     enabled: organizationId !== null && advisorId !== null,
@@ -36,7 +38,4 @@ export const useCurrentAdvisor = () => {
   }
 }
 
-// Debug
-currentAdvisorIdAtom.debugLabel = "currentAdvisorId"
-
-export { currentAdvisorQueryAtom, currentAdvisorIdAtom }
+export { currentAdvisorQueryAtom }

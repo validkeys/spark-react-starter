@@ -2,12 +2,13 @@ import { atomsWithQuery } from "jotai-tanstack-query"
 import axios from "../../../utils/fetch"
 import { OrganizationApiResponse } from "@/types"
 import { atom, useAtomValue } from "jotai"
+import { contextOrganizationIdAtom } from "@/stores/context"
 
 // Atoms
-const currentOrganizationIdAtom = atom<string | null>(null)
+// const currentOrganizationIdAtom = atom<string | null>(null)
 
 const [, currentOrganizationQueryAtom] = atomsWithQuery((get) => {
-  const organizationId = get(currentOrganizationIdAtom)
+  const organizationId = get(contextOrganizationIdAtom)
   return {
     ...organizationQuery(organizationId as string),
     enabled: organizationId !== null,
@@ -34,8 +35,7 @@ export const useCurrentOrganization = () => {
   }
 }
 
-export { currentOrganizationQueryAtom, currentOrganizationIdAtom }
+export { currentOrganizationQueryAtom }
 
 // Debug
-currentOrganizationIdAtom.debugLabel = "currentOrganizationId"
 currentOrganizationQueryAtom.debugLabel = "currentOrganizationQuery"
