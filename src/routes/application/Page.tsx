@@ -18,8 +18,10 @@ const SessionMonitor = ({ children }: { children: ReactNode }) => {
 
 export default function Application() {
   return (
-    <SessionMonitor>
-      <Outlet />
-    </SessionMonitor>
+    <div className="spark-app-container">
+      <SessionMonitor>
+        <Outlet />
+      </SessionMonitor>
+    </div>
   )
 }
