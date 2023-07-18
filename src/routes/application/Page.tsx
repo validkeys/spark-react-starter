@@ -22,8 +22,8 @@ export default function Application() {
       <SessionMonitor>
         <SparkContext />
         <Outlet />
-        <pre>{JSON.stringify(context, null, 2)}</pre>
-        <pre>{JSON.stringify(session, null, 2)}</pre>
+        {/* <pre>{JSON.stringify(context, null, 2)}</pre> */}
+        {/* <pre>{JSON.stringify(session, null, 2)}</pre> */}
       </SessionMonitor>
     </div>
   )

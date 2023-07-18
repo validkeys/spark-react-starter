@@ -1,10 +1,4 @@
 import {
-  AdvisorApiResponse,
-  ApiErrorResponse,
-  OrganizationApiResponse,
-  PermitApiResponse,
-} from "@/types"
-import {
   getOrganization,
   getOrganizationAdvisors,
   getUserPermits,

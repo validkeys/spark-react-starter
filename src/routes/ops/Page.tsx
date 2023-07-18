@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { Outlet } from "react-router-dom"
 
-export default function OpsPage() {
+export default function Component() {
   return (
     <div>
       <Link to="./banking-management">Banking Management</Link>

@@ -57,7 +57,7 @@ const Pagination = ({
 
 export default function BankingManagement() {
   const [page, setPage] = useState(0)
-  const [limit, setLimit] = useState(10)
+  const [limit] = useState(10)
 
   const { isLoading, isFetching, data } = useQuery({
     queryKey: ["ops", "money-move-requests", page, limit],
