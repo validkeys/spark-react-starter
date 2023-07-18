@@ -262,10 +262,75 @@ const opsMmRequestsList = rest.get(
   }
 )
 
+const orgGet = rest.get(
+  "/api/v1/organizations/:organizationId",
+  function (req, res, ctx) {
+    const organization = db.organization.findFirst({
+      where: {
+        id: {
+          equals: req.params["organizationId"] as string,
+        },
+      },
+    })
+
+    if (!organization) {
+      return res(
+        ctx.status(404),
+        ctx.json({
+          errors: [
+            {
+              error: "Organization not found",
+              message: `Could not find organization#${req.params["organizationId"]}`,
+              statusCode: 401,
+            },
+          ],
+        } as ApiErrorResponse)
+      )
+    }
+
+    return res(ctx.status(200), ctx.json({ organization }))
+  }
+)
+
+const advisorGet = rest.get(
+  "/api/v1/organizations/:organizationId/advisors/:advisorId",
+  function (req, res, ctx) {
+    const advisor = db.advisor.findFirst({
+      where: {
+        id: {
+          equals: req.params["advisorId"] as string,
+        },
+        organizationId: {
+          equals: req.params["organizationId"] as string,
+        },
+      },
+    })
+
+    if (!advisor) {
+      return res(
+        ctx.status(404),
+        ctx.json({
+          errors: [
+            {
+              error: "advisor not found",
+              message: `Could not find advisor#${req.params["advisorId"]}`,
+              statusCode: 401,
+            },
+          ],
+        } as ApiErrorResponse)
+      )
+    }
+
+    return res(ctx.status(200), ctx.json({ advisor }))
+  }
+)
+
 export const handlers = [
   sessionGet,
   sessionPost,
   sessionDestroy,
   permitsList,
   opsMmRequestsList,
+  orgGet,
+  advisorGet,
 ]

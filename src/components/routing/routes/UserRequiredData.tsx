@@ -1,28 +1,29 @@
 import { ReactNode } from "react"
-import { useSession } from "@/stores"
-import { permitsDataAtom } from "@/stores/user"
-import { useAtom } from "jotai"
 import { Suspense } from "react"
-
-const Loader = ({ children }: { children: ReactNode }) => {
-  const { session } = useSession()
-  useAtom(permitsDataAtom)
-
-  if (!session.isAuthenticated) {
-    return <>No Session Detected</>
-  }
-
-  return children
-}
+import { useQuery } from "@tanstack/react-query"
+import { getSessionQuery, userPermitsQuery } from "@/state"
 
 export default function UserRequiredData({
   children,
 }: {
   children: ReactNode
 }) {
-  return (
-    <Suspense fallback={<div>Loading Required User Data</div>}>
-      <Loader>{children}</Loader>
-    </Suspense>
+  const { data: session, isSuccess: isAuthenticated } = useQuery(
+    getSessionQuery()
   )
+
+  const { data: permitsData } = useQuery({
+    ...userPermitsQuery(session?.user.id || ""),
+    enabled: !!session?.user,
+  })
+
+  if (!isAuthenticated) {
+    return <>No Session Detected</>
+  }
+
+  if (!permitsData) {
+    return <>Loading Permits</>
+  }
+
+  return <div>{children}</div>
 }

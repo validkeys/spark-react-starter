@@ -55,7 +55,7 @@ const Pagination = ({
   )
 }
 
-export default function BankingManagement() {
+export const Component = () => {
   const [page, setPage] = useState(0)
   const [limit] = useState(10)
 
@@ -84,3 +84,5 @@ export default function BankingManagement() {
     </>
   )
 }
+
+export default Component

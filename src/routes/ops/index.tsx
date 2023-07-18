@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { Outlet } from "react-router-dom"
 
-export default function Component() {
+export const Component = () => {
   return (
     <div>
       <Link to="./banking-management">Banking Management</Link>
@@ -10,3 +10,5 @@ export default function Component() {
     </div>
   )
 }
+
+export default Component

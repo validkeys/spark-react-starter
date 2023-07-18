@@ -70,3 +70,8 @@ export interface MoneyMoveRequest {
   id: string
   amount: number
 }
+
+export interface LoginCredentials {
+  email: string
+  password: string
+}

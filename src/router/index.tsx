@@ -1,12 +1,23 @@
 import { Outlet, createBrowserRouter } from "react-router-dom"
 import { Component as ApplicationRoute } from "../routes/application"
-import IndexRoute from "../routes/index/Page"
+import IndexRoute from "../routes/index"
 import SessionRoute from "@/components/routing/routes/SessionRoute"
-import { appStore } from "@/stores"
-import { advisorQuery, organizationQuery } from "@/data"
-import { isAuthenticatedAtom } from "@/stores/auth"
+import {
+  getSessionQuery,
+  organizationAdvisorQuery,
+  organizationQuery,
+} from "@/state"
 import { queryClient } from "../utils/react-query"
 import { ErrorBoundary } from "../components/routing/ErrorBoundary"
+import { AuthenticatedResponse } from "@/types"
+
+const isAuthenticated = (): boolean => {
+  const session = queryClient.getQueryData<AuthenticatedResponse>(
+    getSessionQuery().queryKey
+  )
+
+  return session && session.user ? true : false
+}
 
 export const router = createBrowserRouter([
   {
@@ -21,10 +32,6 @@ export const router = createBrowserRouter([
             <IndexRoute />
           </SessionRoute>
         ),
-      },
-      {
-        path: "example",
-        lazy: () => import("../routes/Example"),
       },
       {
         path: "login",
@@ -51,10 +58,9 @@ export const router = createBrowserRouter([
           {
             path: ":organizationId",
             loader: async ({ params }) => {
-              if (!appStore.get(isAuthenticatedAtom)) {
+              if (!isAuthenticated()) {
                 return null
               }
-
               const query = organizationQuery(params.organizationId as string)
               const existingData = queryClient.getQueryData(query.queryKey)
               const response =
@@ -71,14 +77,13 @@ export const router = createBrowserRouter([
                   {
                     path: ":advisorId",
                     loader: async ({ params }) => {
-                      console.log("loading advisor route")
-                      if (!appStore.get(isAuthenticatedAtom)) {
+                      if (!isAuthenticated()) {
                         return null
                       }
-                      const query = advisorQuery(
-                        params.organizationId as string,
-                        params.advisorId as string
-                      )
+                      const query = organizationAdvisorQuery({
+                        organizationId: params.organizationId as string,
+                        advisorId: params.advisorId as string,
+                      })
                       const existingData = queryClient.getQueryData(
                         query.queryKey
                       )
