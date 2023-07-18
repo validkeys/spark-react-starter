@@ -1,24 +1,25 @@
 import { Outlet, createBrowserRouter } from "react-router-dom"
 import { Component as ApplicationRoute } from "../routes/application"
 import IndexRoute from "../routes/index/Page"
-import ProtectedRoute from "../utils/protected-route"
+import SessionRoute from "@/components/routing/routes/SessionRoute"
 import { appStore } from "@/stores"
-import { organizationQuery } from "@/routes/organizations/organization/store"
-import { advisorQuery } from "@/routes/organizations/organization/advisors/advisor/store"
+import { advisorQuery, organizationQuery } from "@/data"
 import { isAuthenticatedAtom } from "@/stores/auth"
 import { queryClient } from "../utils/react-query"
+import { ErrorBoundary } from "../components/routing/ErrorBoundary"
 
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: ApplicationRoute,
+    errorElement: <ErrorBoundary />,
     children: [
       {
         index: true,
         element: (
-          <ProtectedRoute>
+          <SessionRoute>
             <IndexRoute />
-          </ProtectedRoute>
+          </SessionRoute>
         ),
       },
       {
@@ -26,11 +27,21 @@ export const router = createBrowserRouter([
         lazy: () => import("../routes/login"),
       },
       {
+        path: "ops",
+        lazy: () => import("../routes/ops"),
+        children: [
+          {
+            path: "banking-management",
+            lazy: () => import("../routes/ops/banking-management"),
+          },
+        ],
+      },
+      {
         path: "organizations",
         element: (
-          <ProtectedRoute>
+          <SessionRoute>
             <Outlet />
-          </ProtectedRoute>
+          </SessionRoute>
         ),
         children: [
           {

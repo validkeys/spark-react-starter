@@ -1,18 +1,22 @@
 import { Outlet } from "react-router-dom"
 import { useCurrentOrganization } from "@/routes/organizations/organization/store"
+import { Suspense } from "react"
+
+const Fallback = () => {
+  return <div>Fetching organization...</div>
+}
 
 const OrganizationRoute = () => {
-  const { isLoading, organization } = useCurrentOrganization()
-
-  if (isLoading) {
-    return <div>Fetching Organization</div>
-  }
+  const { organization } = useCurrentOrganization()
 
   return (
     <div>
-      <div>
-        Organization Route: <strong>{organization?.name}</strong>
-      </div>
+      <Suspense fallback={<Fallback />}>
+        <div>
+          Organization Route: <strong>{organization?.name}</strong>
+        </div>
+      </Suspense>
+
       <Outlet />
     </div>
   )

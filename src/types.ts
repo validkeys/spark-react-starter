@@ -1,5 +1,5 @@
 export interface User {
-  id: number
+  id: string
   name: string
   permits?: Permit[]
 }
@@ -10,6 +10,11 @@ export interface Advisor {
 }
 
 export interface Organization {
+  id: string
+  name: string
+}
+
+export interface Client {
   id: string
   name: string
 }
@@ -37,6 +42,31 @@ export interface OrganizationApiResponse {
   organization: Organization
 }
 
+export interface PermitApiResponse {
+  permits: Permit[]
+  advisor?: Advisor
+  client?: Client
+  organization?: Organization
+}
+
 export interface AdvisorApiResponse {
   advisor: Advisor
+}
+
+export type ApiError = {
+  statusCode: number
+  message: string
+  error: string
+}
+
+export type ApiErrorResponse = { errors: ApiError[] }
+
+export interface AuthenticatedResponse {
+  user: User
+  token: string
+}
+
+export interface MoneyMoveRequest {
+  id: string
+  amount: number
 }

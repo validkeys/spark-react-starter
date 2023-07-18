@@ -1,33 +1,23 @@
 import { atomsWithQuery } from "jotai-tanstack-query"
-import axios from "../../../../../utils/fetch"
-import { AdvisorApiResponse } from "@/types"
 import { useAtomValue } from "jotai"
 import {
   contextAdvisorIdAtom,
   contextOrganizationIdAtom,
 } from "@/stores/context"
+import { advisorQuery } from "@/data"
 
 // Atoms
 
 const [, currentAdvisorQueryAtom] = atomsWithQuery((get) => {
-  const organizationId = get(contextOrganizationIdAtom)
-  const advisorId = get(contextAdvisorIdAtom)
+  const organizationId = get(contextOrganizationIdAtom) as string
+  const advisorId = get(contextAdvisorIdAtom) as string
   return {
-    ...advisorQuery(organizationId as string, advisorId as string),
+    ...advisorQuery({ organizationId, advisorId }),
     enabled: organizationId !== null && advisorId !== null,
   }
 })
 
 // Queries
-export const advisorQuery = (organizationId: string, id: string) => ({
-  queryKey: ["advisors", organizationId, id],
-  queryFn: async () => {
-    const { data } = await axios.get<AdvisorApiResponse>(
-      `/api/v1/organizations/${organizationId}/advisors/${id}`
-    )
-    return data
-  },
-})
 
 // Hooks
 export const useCurrentAdvisor = () => {
