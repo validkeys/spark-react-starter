@@ -10,10 +10,10 @@ export const Component = () => {
   }
 
   return (
-    <div className="spark-app-container">
+    <>
       {isAuthenticated && <button onClick={handleLogout}>Logout</button>}
       <Outlet />
-    </div>
+    </>
   )
 }
 
