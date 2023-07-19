@@ -7,14 +7,14 @@ import {
   organizationAdvisorQuery,
 } from "./queries"
 import { registerAuthToken } from "@/utils/fetch"
-import { useEffect, useMemo } from "react"
+import { useEffect } from "react"
 import { useParams } from "react-router-dom"
 
 const LOCAL_STORAGE_TOKEN_NAME = "sparkToken"
 
 export const useSession = () => {
   // Load persisted local storage token on app load
-  useMemo(() => {
+  useEffect(() => {
     const existingToken = localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)
     console.log(`found existing token: ${existingToken}`)
 
