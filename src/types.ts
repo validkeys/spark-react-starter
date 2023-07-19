@@ -28,6 +28,8 @@ export interface Role {
 
 export interface Permit {
   id: string
+  client?: Client
+  clientId: string | null
   advisor?: Advisor
   advisorId: string | null
   organization?: Organization

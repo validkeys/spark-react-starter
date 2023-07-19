@@ -1,77 +1,39 @@
-import { type Permit } from "@/types"
-import { Navigate, Link } from "react-router-dom"
-import { Suspense } from "react"
-import { useQuery } from "@tanstack/react-query"
-import { getSessionQuery, userPermitsQuery } from "@/state"
+import { useSession } from "@/state"
+import { useUserPermits } from "@/state"
+import { FullScreenLayout } from "@/components/layouts/full-screen"
+import { PermitCard } from "./components/PermitCard"
+import { DaisyTheme } from "@/components/daisy/Theme"
 
-const PermitTile = ({ permit }: { permit: Permit }) => {
-  let path = "/"
+export const Component = () => {
+  const { data: permits, isLoading } = useUserPermits()
+  const { data: session } = useSession()
 
-  switch (permit.role?.type) {
-    case 0:
-      path = "/admin"
-      break
-    case 1:
-      path = "/ops"
-      break
-    case 3:
-      path = `/organizations/${permit.organizationId as string}/advisors/${
-        permit.advisorId as string
-      }`
-      break
-    default:
-      path = "/"
-      break
+  if (isLoading) {
+    return <div>Loading Permits</div>
   }
 
   return (
-    <Link to={path}>
-      <div className="bg-white shadow rounded border border-solid border-black p-2 m-2">
-        <div>Permit {permit.id}</div>
-        <div>
-          Role: {permit.role?.name} | {permit.role?.type}
+    <FullScreenLayout>
+      <DaisyTheme theme="light">
+        <div className="h-full flex items-center justify-center">
+          <div className="flex flex-col gap-4 justify-center">
+            <div className="flex flex-col">
+              <h2 className="text-center text-2xl font-bold leading-9">
+                Hey, {session?.user.name}
+              </h2>
+              <h3 className="text-center leading-9 text-gray-500">
+                What would you like to do today?
+              </h3>
+            </div>
+
+            {permits?.map((permit) => (
+              <PermitCard key={`permit.card.${permit.id}`} permit={permit} />
+            ))}
+          </div>
         </div>
-        {permit.organization ? (
-          <div>Organization: {permit.organization.name}</div>
-        ) : null}
-        {permit.advisor ? <div>Advisor: {permit.advisor.name}</div> : null}
-      </div>
-    </Link>
+      </DaisyTheme>
+    </FullScreenLayout>
   )
 }
 
-const usePermits = () => {
-  const { data: session } = useQuery(getSessionQuery())
-  return useQuery({
-    ...userPermitsQuery(session?.user?.id || ""),
-    enabled: !!session?.user,
-    select(data) {
-      return data.permits
-    },
-  })
-}
-
-export default function IndexRoute() {
-  // const currentUser = useCurrentUserValue() as User
-  const { data: permits } = usePermits()
-
-  if (permits?.length === 1) {
-    const [permit] = permits
-
-    if (permit.role?.type === 3) {
-      const path = `/organizations/${permit.organizationId}/advisors/${permit.advisorId}`
-      return <Navigate replace to={path} />
-    }
-  }
-
-  return (
-    <Suspense fallback={<div>Loading User Permits</div>}>
-      <div>
-        <div>Your Permits</div>
-        {permits?.map((permit) => {
-          return <PermitTile key={permit.id} permit={permit} />
-        })}
-      </div>
-    </Suspense>
-  )
-}
+export default Component

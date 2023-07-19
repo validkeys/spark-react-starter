@@ -5,10 +5,12 @@ import {
   postSessionQuery,
   organizationQuery,
   organizationAdvisorQuery,
+  userPermitsQuery,
 } from "./queries"
 import { registerAuthToken } from "@/utils/fetch"
 import { useEffect } from "react"
 import { useParams } from "react-router-dom"
+import { queryClient } from "@/utils/react-query"
 
 const LOCAL_STORAGE_TOKEN_NAME = "sparkToken"
 
@@ -16,23 +18,31 @@ export const useSession = () => {
   // Load persisted local storage token on app load
   useEffect(() => {
     const existingToken = localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)
-    console.log(`found existing token: ${existingToken}`)
 
     if (existingToken) {
-      console.log("registering existing token")
       registerAuthToken(existingToken)
     }
   }, [])
 
   const session = useQuery(getSessionQuery())
 
+  if (session.data) {
+    const permits = session.data.user.permits || []
+    if (permits.length) {
+      queryClient.setQueryData(
+        userPermitsQuery(session.data.user.id).queryKey,
+        {
+          permits: permits,
+        }
+      )
+    }
+  }
+
   // Monitor session token for changes
   useEffect(() => {
     if (session?.data?.token) {
-      console.log("setting new token", session.data.token)
       localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, session.data.token)
     } else {
-      console.log("removing token")
       localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME)
     }
   }, [session.data?.token])
@@ -49,6 +59,7 @@ export const useLogin = () => {
   if (login.data) {
     localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, login.data.token)
     registerAuthToken(login.data.token)
+    queryClient.setQueryData(getSessionQuery().queryKey, login.data)
   }
 
   return login
@@ -90,4 +101,16 @@ export const useCurrentAdvisor = () => {
       advisorId: params.advisorId,
     })
   )
+}
+
+export const useUserPermits = () => {
+  const { data: session, isAuthenticated } = useSession()
+  const userPermitQuery = useQuery({
+    ...userPermitsQuery(session?.user?.id || ""),
+    enabled: isAuthenticated,
+    select(data) {
+      return data.permits
+    },
+  })
+  return userPermitQuery
 }

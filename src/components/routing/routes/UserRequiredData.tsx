@@ -1,5 +1,4 @@
 import { ReactNode } from "react"
-import { Suspense } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { getSessionQuery, userPermitsQuery } from "@/state"
 
@@ -25,5 +24,5 @@ export default function UserRequiredData({
     return <>Loading Permits</>
   }
 
-  return <div>{children}</div>
+  return children
 }
