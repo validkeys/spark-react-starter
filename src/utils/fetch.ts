@@ -1,4 +1,5 @@
-import axios, { AxiosError } from "axios"
+import { ApiError } from "@/types"
+import axios, { AxiosError, AxiosResponse } from "axios"
 
 const instance = axios.create({
   baseURL: "http://localhost:4200",
@@ -15,17 +16,4 @@ export const registerAuthToken = (token: string) => {
   )
 }
 
-instance.interceptors.response.use(undefined, (error: AxiosError) => {
-  console.log(error.response)
-  return Promise.reject(error)
-})
-
-// instance.interceptors.response.use(
-//   function (response) {
-//     return response;
-//   },
-//   function (error: AxiosError) {
-//     return new SparkAxiosError(error.message)
-//   }
-// );
 export default instance

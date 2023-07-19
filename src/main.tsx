@@ -7,6 +7,8 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { queryClient } from "./utils/react-query"
 import { router } from "./router"
 import { ErrorBoundary } from "react-error-boundary"
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 import { worker } from "./mocks/browser"
 worker.start().catch((err) => {
@@ -22,6 +24,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <RouterProvider router={router} />
         <ReactQueryDevtools />
       </QueryClientProvider>
+      <ToastContainer />
     </ErrorBoundary>
   </React.StrictMode>
 )

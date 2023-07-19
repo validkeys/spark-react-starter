@@ -5,6 +5,9 @@ import { useSession, useLogin } from "@/state/hooks"
 import { useQueryParams } from "@/router/utils"
 import { DaisyTheme } from "@/components/daisy/Theme"
 import { useEffect, MouseEvent } from "react"
+import { toast } from "react-toastify"
+import { AxiosError } from "axios"
+import { extractErrorMessages } from "@/utils/react-query"
 
 export const Component = () => {
   useEffect(() => {
@@ -28,6 +31,24 @@ export const Component = () => {
     return <Navigate replace to="/" />
   }
 
+  if (login.data?.user) {
+    const path = queryParams.get("redirect") || "/"
+    toast.dismiss()
+    return <Navigate replace to={path} />
+  }
+
+  if (login.isError) {
+    if (login.error instanceof AxiosError) {
+      const errors = extractErrorMessages(login.error)
+      errors.forEach((error, idx) => {
+        const message = `${error.error}: ${error.message}`
+        toast.error(message, {
+          toastId: `auth.error.${idx}`,
+        })
+      })
+    }
+  }
+
   const onSubmit = handleSubmit((credentials: LoginCredentials) => {
     void login.mutate(credentials)
   })
@@ -37,11 +58,6 @@ export const Component = () => {
     void login.mutate({ email: "advisoradmin@ci.com", password: "password" })
   }
 
-  if (login.data?.user) {
-    const path = queryParams.get("redirect") || "/"
-    return <Navigate replace to={path} />
-  }
-
   return (
     <DaisyTheme theme="light">
       <div className="flex min-h-full justify-center">
@@ -49,7 +65,7 @@ export const Component = () => {
           <div className="card-body">
             <div className="card-title">Sign into your account</div>
 
-            <form data-test="login-form" onSubmit={() => void onSubmit()}>
+            <form data-test="login-form" onSubmit={(e) => void onSubmit(e)}>
               <div className="flex flex-col gap-6 justify-between">
                 <div>
                   <label htmlFor="email">Email Address</label>
