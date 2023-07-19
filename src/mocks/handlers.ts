@@ -106,6 +106,19 @@ const sessionPost = rest.post<PostBody>(
     try {
       const body: PostBody = await req.json()
 
+      return res(
+        ctx.status(401),
+        ctx.json({
+          errors: [
+            {
+              error: "User not found",
+              message: "Email / Password combination not found",
+              statusCode: 401,
+            },
+          ],
+        } as ApiErrorResponse)
+      )
+
       const user = db.user.findFirst({
         where: {
           email: { equals: body.email },
