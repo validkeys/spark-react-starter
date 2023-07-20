@@ -1,16 +1,29 @@
-import { Link } from "react-router-dom"
 import { Outlet } from "react-router-dom"
 import { DaisyTheme } from "@/components/daisy/Theme"
+import { NavBar } from "@/components/ui/navs/NavBar"
+import SessionRoute from "@/components/routing/routes/SessionRoute"
+import { SearchBar } from "@/components/ui/navs/SearchBar"
 
 export const Component = () => {
   return (
-    <DaisyTheme theme="luxury">
-      <div>
-        <Link to="./banking-management">Banking Management</Link>
-        <div>Ops Screen</div>
+    <SessionRoute>
+      <DaisyTheme theme="luxury">
+        <NavBar
+          items={[
+            { name: "Dashboard", href: "/ops" },
+            { name: "Banking Management", href: "/ops/banking-management" },
+            { name: "Dashboard", href: "/a" },
+            { name: "Dashboard", href: "/b" },
+          ]}
+          extras={() => {
+            return (
+              <SearchBar params={{ organizationId: null, advisorId: null }} />
+            )
+          }}
+        />
         <Outlet />
-      </div>
-    </DaisyTheme>
+      </DaisyTheme>
+    </SessionRoute>
   )
 }
 

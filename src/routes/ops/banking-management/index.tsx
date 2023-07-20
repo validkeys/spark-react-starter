@@ -1,32 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
-import axios from "../../../utils/fetch"
-import { MoneyMoveRequest } from "@/types"
 import { useState } from "react"
-
-type PaginationMeta = {
-  total: number
-  page: number
-  limit: number
-}
-
-type MoneyMoveResponse = {
-  requests: MoneyMoveRequest[]
-  meta: PaginationMeta
-}
-
-const fetchTransactions = async (page = 0, limit = 10) => {
-  await new Promise((r) => setTimeout(r, 3000))
-  const { data } = await axios.get<MoneyMoveResponse>(
-    "/api/v1/ops/mm-requests",
-    {
-      params: {
-        page,
-        limit,
-      },
-    }
-  )
-  return data
-}
+import { getOpsMoneyMoveRequests } from "@/state"
 
 const Pagination = ({
   data,
@@ -59,11 +33,9 @@ export const Component = () => {
   const [page, setPage] = useState(0)
   const [limit] = useState(10)
 
-  const { isLoading, isFetching, data } = useQuery({
-    queryKey: ["ops", "money-move-requests", page, limit],
-    queryFn: () => fetchTransactions(page, limit),
-    keepPreviousData: true,
-  })
+  const { isLoading, isFetching, data } = useQuery(
+    getOpsMoneyMoveRequests(page, limit)
+  )
 
   if (isLoading) {
     return <div>Loading Transactions</div>
@@ -74,7 +46,7 @@ export const Component = () => {
       {isFetching && <div>Fetching Next Page...</div>}
       <div>
         {data?.requests.map((request) => {
-          return <div>{request.id}</div>
+          return <div key={request.id}>{request.id}</div>
         })}
       </div>
       <Pagination

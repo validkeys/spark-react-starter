@@ -8,7 +8,7 @@ import {
   userPermitsQuery,
 } from "./queries"
 import { registerAuthToken } from "@/utils/fetch"
-import { useEffect } from "react"
+import { RefObject, useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
 import { queryClient } from "@/utils/react-query"
 
@@ -78,12 +78,13 @@ export const useLogout = () => {
 
 export const useCurrentOrganization = () => {
   const params = useParams()
-
   if (!params.organizationId) {
-    throw new Error("No organizationId found in url params")
+    console.warn(
+      `useCurrentOrganization found no organizationId in params. Resulting query will be disabled`
+    )
   }
 
-  return useQuery(organizationQuery(params.organizationId))
+  return useQuery(organizationQuery(params.organizationId as string))
 }
 
 export const useCurrentAdvisor = () => {
@@ -113,4 +114,84 @@ export const useUserPermits = () => {
     },
   })
   return userPermitQuery
+}
+
+export const useRefPosition = <T extends HTMLElement>(ref: RefObject<T>) => {
+  const [pos, setPos] = useState({
+    top: 0,
+    right: 0,
+    left: 0,
+    bottom: 0,
+    height: 0,
+    width: 0,
+    x: 0,
+    y: 0,
+  })
+
+  useEffect(() => {
+    if (ref.current) {
+      const rects = ref.current.getBoundingClientRect()
+      setPos(rects)
+    }
+  }, [ref])
+
+  return pos
+}
+
+type ClickAwayOptions = {
+  ref?: RefObject<HTMLElement>
+  exceptionRef?: RefObject<HTMLElement>
+}
+
+const refContainsTarget = (
+  ref: RefObject<HTMLElement | undefined>,
+  target: HTMLElement
+) => {
+  if (ref && ref.current) {
+    return ref.current.contains(target)
+  }
+
+  return false
+}
+
+export const useClickAway = (cb: () => void, options?: ClickAwayOptions) => {
+  const ref = options?.ref || useRef<HTMLElement>()
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClick)
+
+    return () => {
+      document.removeEventListener("mousedown", handleClick)
+    }
+  }, [])
+
+  const handleClick = (event: MouseEvent) => {
+    const { target } = event
+    const exceptionRef = options?.exceptionRef || null
+
+    if (!target) {
+      return
+    }
+
+    const wrapperRefContainsTarget = refContainsTarget(
+      ref,
+      target as HTMLElement
+    )
+
+    let isExceptionRef = false
+
+    if (exceptionRef && exceptionRef.current) {
+      isExceptionRef =
+        exceptionRef.current === target ||
+        refContainsTarget(exceptionRef, target as HTMLElement)
+    }
+
+    if (wrapperRefContainsTarget || isExceptionRef) {
+      return
+    } else {
+      cb()
+    }
+  }
+
+  return ref
 }

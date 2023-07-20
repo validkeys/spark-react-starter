@@ -1,10 +1,11 @@
-import { LoginCredentials } from "@/types"
+import { ClientSearchResults, LoginCredentials } from "@/types"
 import axios from "../utils/fetch"
 import {
   AdvisorApiResponse,
   OrganizationApiResponse,
   PermitApiResponse,
   AuthenticatedResponse,
+  MoneyMoveResponse,
 } from "@/types"
 
 // Organization Queries
@@ -16,6 +17,7 @@ export const organizationQuery = (organizationId: string) => ({
     )
     return result.data
   },
+  enabled: !!organizationId,
 })
 
 type AdvisorQueryParams = {
@@ -73,6 +75,62 @@ export const destroySessionQuery = () => {
     mutationFn: async () => {
       const result = await axios.delete<void>("/api/v1/sessions")
       return result.data
+    },
+  }
+}
+
+export const getOpsMoneyMoveRequests = (page = 0, limit = 0) => {
+  return {
+    queryKey: ["ops", "money-move-requests", page, limit],
+    queryFn: async () => {
+      const { data } = await axios.get<MoneyMoveResponse>(
+        "/api/v1/ops/mm-requests",
+        {
+          params: {
+            page,
+            limit,
+          },
+        }
+      )
+      return data
+    },
+    keepPreviousData: true,
+  }
+}
+
+type ClientSearchParams = {
+  organizationId?: string | null
+  advisorId?: string | null
+  query: string
+}
+
+export const clientSearchQuery = ({
+  organizationId,
+  advisorId,
+  query,
+}: ClientSearchParams) => {
+  const queryKey = ["client.search", { organizationId, advisorId, query }]
+  return {
+    queryKey,
+    queryFn: async () => {
+      let url = "/api/v1"
+
+      if (organizationId) {
+        url += `/organizations/${organizationId}`
+      }
+
+      if (advisorId) {
+        url += `/advisors/${advisorId}`
+      }
+
+      const { data } = await axios.get<ClientSearchResults>(
+        `${url}/clientSummaries`,
+        {
+          params: { query },
+        }
+      )
+
+      return data
     },
   }
 }

@@ -1,6 +1,7 @@
 export interface User {
   id: string
   name: string
+  email: string
   permits?: Permit[]
 }
 
@@ -12,6 +13,7 @@ export interface Advisor {
 export interface Organization {
   id: string
   name: string
+  logo: string
 }
 
 export interface Client {
@@ -77,3 +79,26 @@ export interface LoginCredentials {
   email: string
   password: string
 }
+
+export type PaginationMeta = {
+  total: number
+  page: number
+  limit: number
+}
+
+export type MoneyMoveResponse = {
+  requests: MoneyMoveRequest[]
+  meta: PaginationMeta
+}
+
+export type ClientSummary = {
+  clientId: string
+  advisorId: string
+  organizationId: string
+  branchId: string | null
+  regionId: string | null
+  clientName: string
+  advisorName: string
+}
+
+export type ClientSearchResults = ClientSummary[]
