@@ -1,14 +1,14 @@
 import { Navigate } from "react-router-dom"
-import { useSession, useLogin } from "@/state/hooks"
+import { useSession, useLogin, useTailwindFullscreen } from "@/state/hooks"
 import { useQueryParams } from "@/router/utils"
 import { DaisyTheme } from "@/components/daisy/Theme"
 import { toast } from "react-toastify"
-import { FullScreenLayout } from "@/components/layouts/full-screen"
 import { LoginForm } from "./components/LoginForm"
 import { LoginCredentials } from "@/types"
 import { ReactQueryErrorNotifications } from "@/components/ui/notifications/ReactQueryErrorNotifications"
 
 export const Component = () => {
+  useTailwindFullscreen()
   const { isAuthenticated } = useSession()
   const login = useLogin()
   const queryParams = useQueryParams()
@@ -30,16 +30,14 @@ export const Component = () => {
   return (
     <DaisyTheme theme="light">
       <ReactQueryErrorNotifications query={login} />
-      <FullScreenLayout>
-        <div className="flex min-h-full justify-center">
-          <div className="card m-auto bg-base-300">
-            <div className="card-body">
-              <div className="card-title">Sign into your account</div>
-              <LoginForm onSubmit={onSubmit} isSubmitting={login.isLoading} />
-            </div>
+      <div className="flex min-h-full justify-center">
+        <div className="card m-auto bg-base-300">
+          <div className="card-body">
+            <div className="card-title">Sign into your account</div>
+            <LoginForm onSubmit={onSubmit} isSubmitting={login.isLoading} />
           </div>
         </div>
-      </FullScreenLayout>
+      </div>
     </DaisyTheme>
   )
 }
