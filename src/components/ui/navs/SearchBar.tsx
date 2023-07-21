@@ -4,6 +4,7 @@ import { clientSearchQuery, useClickAway, useRefPosition } from "@/state"
 import { useQuery } from "@tanstack/react-query"
 import { ClientSearchResults } from "@/types"
 import { createPortal } from "react-dom"
+import { Transition } from "@headlessui/react"
 
 type SearchProps = {
   params: {
@@ -17,7 +18,8 @@ const usePosition = (
   contentRef: RefObject<HTMLElement>
 ) => {
   const [positionsInitialized, setPositionsInitialized] = useState(false)
-  const targetPosition = useRefPosition(targetRef)
+  const targetRects = useRefPosition(targetRef)
+  const contentRects = useRefPosition(contentRef)
   const [contentPosition, setContentPosition] = useState({
     top: 0,
     left: 0,
@@ -25,20 +27,14 @@ const usePosition = (
 
   useEffect(() => {
     if (contentRef.current) {
-      const rects = contentRef.current.getBoundingClientRect()
-      const widthDiff = rects.width - targetPosition.width
+      const widthDiff = contentRects.width - targetRects.width
       setContentPosition({
-        top: targetPosition.bottom + 10,
-        left: targetPosition.left - widthDiff,
+        top: targetRects.bottom + 10,
+        left: targetRects.left - widthDiff,
       })
       setPositionsInitialized(true)
     }
-  }, [
-    targetPosition.bottom,
-    targetPosition.left,
-    targetPosition.width,
-    contentRef,
-  ])
+  }, [targetRects, contentRects, contentRef])
 
   return { ...contentPosition, ready: positionsInitialized }
 }
@@ -53,23 +49,30 @@ const SearchResults = ({
   results: ClientSearchResults | null | undefined
 }) => {
   const { ready, ...position } = usePosition(tetherRef, contentRef)
+
   return (
-    <div
-      ref={contentRef}
-      className={`fixed p-5 bg-base-300 shadow-lg text-base w-[300px] h-80 overflow-auto rounded ${
-        ready ? "block" : "hidden"
-      }`}
-      style={position}
-    >
-      {results && results.length ? (
-        <ul>
-          {results.map((result) => {
-            return <li key={result.clientId}>{result.clientName}</li>
-          })}
-        </ul>
-      ) : (
-        <>No Search Results</>
-      )}
+    <div ref={contentRef} className={`fixed`} style={position}>
+      <Transition
+        show={ready}
+        enter="transition-opacity duration-75"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="transition-opacity duration-150"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        <div className="p-5 bg-base-300 shadow-lg text-base w-[300px] h-80 overflow-auto rounded">
+          {results && results.length ? (
+            <ul>
+              {results.map((result) => {
+                return <li key={result.clientId}>{result.clientName}</li>
+              })}
+            </ul>
+          ) : (
+            <>No Search Results</>
+          )}
+        </div>
+      </Transition>
     </div>
   )
 }

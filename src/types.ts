@@ -73,6 +73,14 @@ export interface AuthenticatedResponse {
 export interface MoneyMoveRequest {
   id: string
   amount: number
+  type: "ToBank" | "FromBank" | "Internal"
+  client?: Client
+  bankAccountNumber: string
+  financialAccountNumber: string
+  bankInstitutionNumber: string
+  method: string
+  createdDate: Date
+  currencyCode: string
 }
 
 export interface LoginCredentials {
@@ -102,3 +110,5 @@ export type ClientSummary = {
 }
 
 export type ClientSearchResults = ClientSummary[]
+
+export type DOMRectProps = Omit<DOMRectReadOnly, "toJSON">

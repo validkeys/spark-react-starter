@@ -11,6 +11,8 @@ import { registerAuthToken } from "@/utils/fetch"
 import { RefObject, useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
 import { queryClient } from "@/utils/react-query"
+import { DOMRectProps } from "@/types"
+import { createDomRect } from "@/utils/dom"
 
 const LOCAL_STORAGE_TOKEN_NAME = "sparkToken"
 
@@ -117,25 +119,34 @@ export const useUserPermits = () => {
 }
 
 export const useRefPosition = <T extends HTMLElement>(ref: RefObject<T>) => {
-  const [pos, setPos] = useState({
-    top: 0,
-    right: 0,
-    left: 0,
-    bottom: 0,
-    height: 0,
-    width: 0,
-    x: 0,
-    y: 0,
-  })
+  return useResizeObserver(ref)
+}
+
+export const useResizeObserver = (ref: RefObject<HTMLElement>) => {
+  const rect = new DOMRect().toJSON() as DOMRectProps
+  const [rects, setRects] = useState<DOMRectProps>(rect)
 
   useEffect(() => {
-    if (ref.current) {
-      const rects = ref.current.getBoundingClientRect()
-      setPos(rects)
+    const onUpdate = () => {
+      ref.current && setRects(ref.current.getBoundingClientRect())
+    }
+
+    const observer = new ResizeObserver(function (entries) {
+      const hasItem =
+        ref.current && entries.find((entry) => entry.target === ref.current)
+      hasItem && onUpdate()
+    })
+
+    ref.current && observer.observe(ref.current)
+
+    onUpdate()
+
+    return () => {
+      observer.disconnect()
     }
   }, [ref])
 
-  return pos
+  return rects
 }
 
 type ClickAwayOptions = {

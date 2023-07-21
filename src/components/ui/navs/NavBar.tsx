@@ -33,9 +33,9 @@ const CompanyLogo = () => {
       ? data.organization.logo
       : "https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
   return (
-    <div className="flex flex-shrink-0 items-center">
+    <Link to="/" className="flex flex-shrink-0 items-center">
       <img className="block h-8 w-auto" src={logoSrc} alt="Your Company" />
-    </div>
+    </Link>
   )
 }
 
@@ -120,7 +120,7 @@ const NavigationItems = ({
             return classNames(
               isActive
                 ? "border-b-accent-content text-accent-content"
-                : "border-b-0",
+                : "border-b-transparent",
               "text-base-content inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium"
             )
           }}
@@ -160,7 +160,7 @@ export const NavBar = ({ items, extras }: Props) => {
     <Disclosure as="nav" className="bg-base-100 text-base-300">
       {({ open }) => (
         <>
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="spark-container">
             <div className="flex h-16 justify-between">
               <div className="flex">
                 {/* LOGO */}
