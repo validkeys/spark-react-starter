@@ -3,8 +3,9 @@ import decode from "jwt-decode"
 import encode from "jwt-encode"
 import { type RestRequest } from "msw"
 import { db } from "./db"
-import { ApiErrorResponse } from "@/types"
+import { ApiErrorResponse, ClientSearchResults, ClientSummary } from "@/types"
 import { IModel } from "./types"
+import { getAdvisorClients } from "./helpers"
 
 interface TokenData {
   id: string
@@ -262,6 +263,36 @@ const opsMmRequestsList = rest.get(
   }
 )
 
+const opsMmBatchUpdate = rest.post(
+  "/api/v1/ops/mm-requests/batch-update",
+  async (req, res, ctx) => {
+    const body = await req.json<{
+      ids: string[]
+      action: "approve" | "reject"
+    }>()
+
+    const status = body.action === "approve" ? "approved" : "rejected"
+    db.moneyMoveRequest.updateMany({
+      where: {
+        id: {
+          in: body.ids,
+        },
+      },
+      data: {
+        status,
+      },
+    })
+
+    const requests = db.moneyMoveRequest.findMany({
+      where: {
+        id: { in: body.ids },
+      },
+    })
+
+    return res(ctx.status(200), ctx.json({ requests }))
+  }
+)
+
 const orgGet = rest.get(
   "/api/v1/organizations/:organizationId",
   function (req, res, ctx) {
@@ -325,12 +356,141 @@ const advisorGet = rest.get(
   }
 )
 
+const opsClientSearch = rest.get(
+  "/api/v1/clientSummaries",
+  function (req, res, ctx) {
+    const accumulator: ClientSummary[] = []
+    const query = req.url.searchParams.get("query")
+    const clients = db.client.getAll()
+
+    let clientSummaries: ClientSearchResults = clients.reduce((arr, client) => {
+      const data: ClientSummary = {
+        clientId: client.id,
+        advisorId: "",
+        organizationId: "",
+        branchId: null,
+        regionId: null,
+        clientName: client.name,
+        advisorName: "",
+      }
+
+      return [...arr, data]
+    }, accumulator)
+
+    if (query && query.length) {
+      const pattern = new RegExp(query, "i")
+      clientSummaries = clientSummaries.filter((cs) => {
+        return pattern.test(cs.clientName)
+      })
+    }
+
+    return res(ctx.status(200), ctx.json(clientSummaries))
+  }
+)
+
+const advisorClientSearch = rest.get(
+  "/api/v1/organizations/:organizationId/advisors/:advisorId/clientSummaries",
+  function (req, res, ctx) {
+    const accumulator: ClientSummary[] = []
+    const query = req.url.searchParams.get("query")
+    const advisor = db.advisor.findFirst({
+      where: {
+        id: { equals: req.params["advisorId"] as string },
+      },
+    }) as IModel<"advisor">
+    const advisorCodes = db.advisorCode.findMany({
+      where: {
+        advisorId: { equals: req.params["advisorId"] as string },
+      },
+    })
+    const repCodes = advisorCodes.map((advisorCode) => advisorCode.repCodeId)
+
+    const clients = db.client.getAll().filter((client) => {
+      return repCodes.includes(client.repCodeId)
+    })
+
+    let clientSummaries: ClientSearchResults = clients.reduce((arr, client) => {
+      const data: ClientSummary = {
+        clientId: client.id,
+        advisorId: advisor.id as string,
+        organizationId: advisor?.organizationId as string,
+        branchId: null,
+        regionId: null,
+        clientName: client.name,
+        advisorName: advisor?.name as string,
+      }
+
+      return [...arr, data]
+    }, accumulator)
+
+    if (query && query.length) {
+      const pattern = new RegExp(query, "i")
+      clientSummaries = clientSummaries.filter((cs) => {
+        return pattern.test(cs.clientName)
+      })
+    }
+
+    return res(ctx.status(200), ctx.json(clientSummaries))
+  }
+)
+
+const clientGet = rest.get(
+  "/api/v1/organizations/:organizationId/advisors/:advisorId/clients/:clientId",
+  function (req, res, ctx) {
+    const client = db.client.findFirst({
+      where: {
+        id: {
+          equals: req.params["clientId"] as string,
+        },
+      },
+    })
+
+    if (!client) {
+      return res(
+        ctx.status(404),
+        ctx.json({
+          errors: [
+            {
+              error: "Not Found",
+              message: "Client not found",
+              statusCode: 404,
+            },
+          ],
+        })
+      )
+    }
+
+    return res(
+      ctx.status(200),
+      ctx.json({
+        client: {
+          ...client,
+          advisor: db.advisor.findFirst({
+            where: {
+              id: { equals: req.params["advisorId"] as string },
+            },
+          }),
+          investmentSummary: db.clientSummary.findFirst({
+            where: {
+              clientId: { equals: client.id },
+            },
+          }),
+        },
+      })
+    )
+  }
+)
+
 export const handlers = [
   sessionGet,
   sessionPost,
   sessionDestroy,
   permitsList,
   opsMmRequestsList,
+  opsMmBatchUpdate,
   orgGet,
   advisorGet,
+  opsClientSearch,
+  advisorClientSearch,
+  clientGet,
 ]

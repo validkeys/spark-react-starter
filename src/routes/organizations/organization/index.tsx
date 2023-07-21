@@ -1,32 +1,23 @@
 import { Outlet } from "react-router-dom"
-import { useCurrentOrganization } from "@/state/hooks"
 
 export const Component = () => {
-  const {
-    data: organizationResponse,
-    isLoading,
-    isError,
-  } = useCurrentOrganization()
+  // const {
+  //   data: organizationResponse,
+  //   isLoading,
+  //   isError,
+  // } = useCurrentOrganization()
 
-  if (isLoading) {
-    return <div>Loading Organization</div>
-  }
+  // if (isLoading) {
+  //   return <div>Loading Organization</div>
+  // }
 
-  if (isError) {
-    return <div>Error Loading Organization</div>
-  }
+  // if (isError) {
+  //   return <div>Error Loading Organization</div>
+  // }
 
-  const { organization } = organizationResponse
+  // const { organization } = organizationResponse
 
-  return (
-    <div>
-      <div>
-        Organization Route: <strong>{organization.name}</strong>
-      </div>
-
-      <Outlet />
-    </div>
-  )
+  return <Outlet />
 }
 
 export default Component

@@ -3,21 +3,13 @@ import { Component as ApplicationRoute } from "../routes/application"
 import IndexRoute from "../routes/index"
 import SessionRoute from "@/components/routing/routes/SessionRoute"
 import {
-  getSessionQuery,
+  clientQuery,
   organizationAdvisorQuery,
   organizationQuery,
 } from "@/state"
 import { queryClient } from "../utils/react-query"
 import { ErrorBoundary } from "../components/routing/ErrorBoundary"
-import { AuthenticatedResponse } from "@/types"
-
-const isAuthenticated = (): boolean => {
-  const session = queryClient.getQueryData<AuthenticatedResponse>(
-    getSessionQuery().queryKey
-  )
-
-  return session && session.user ? true : false
-}
+import { isAuthenticated } from "@/state/utils"
 
 export const router = createBrowserRouter([
   {
@@ -96,6 +88,32 @@ export const router = createBrowserRouter([
                       import(
                         "../routes/organizations/organization/advisors/advisor"
                       ),
+                    children: [
+                      {
+                        path: "clients/:clientId",
+                        loader: async ({ params }) => {
+                          if (!isAuthenticated()) {
+                            return null
+                          }
+                          const query = clientQuery(params.clientId as string, {
+                            organizationId: params.organizationId as string,
+                            advisorId: params.advisorId as string,
+                          })
+                          const existingData = queryClient.getQueryData(
+                            query.queryKey
+                          )
+                          const response =
+                            existingData ||
+                            (await queryClient.fetchQuery(query))
+                          console.log("done loading client route")
+                          return response
+                        },
+                        lazy: () =>
+                          import(
+                            "../routes/organizations/organization/advisors/advisor/clients/client"
+                          ),
+                      },
+                    ],
                   },
                 ],
               },

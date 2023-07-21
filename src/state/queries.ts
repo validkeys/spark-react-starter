@@ -1,13 +1,18 @@
-import { LoginCredentials } from "@/types"
+import {
+  ClientDetailResponse,
+  ClientSearchResults,
+  LoginCredentials,
+} from "@/types"
 import axios from "../utils/fetch"
 import {
   AdvisorApiResponse,
   OrganizationApiResponse,
   PermitApiResponse,
   AuthenticatedResponse,
+  MoneyMoveResponse,
+  OpsRequestBatchUpdatePayload,
 } from "@/types"
 
-// Organization Queries
 export const organizationQuery = (organizationId: string) => ({
   queryKey: ["organizations", organizationId],
   queryFn: async () => {
@@ -16,6 +21,7 @@ export const organizationQuery = (organizationId: string) => ({
     )
     return result.data
   },
+  enabled: !!organizationId,
 })
 
 type AdvisorQueryParams = {
@@ -76,3 +82,87 @@ export const destroySessionQuery = () => {
     },
   }
 }
+
+export const getOpsMoneyMoveRequests = (page = 0, limit = 0) => {
+  return {
+    queryKey: ["ops", "money-move-requests", page, limit],
+    queryFn: async () => {
+      const { data } = await axios.get<MoneyMoveResponse>(
+        "/api/v1/ops/mm-requests",
+        {
+          params: {
+            page,
+            limit,
+          },
+        }
+      )
+      return data
+    },
+    keepPreviousData: true,
+  }
+}
+
+type ClientSearchParams = {
+  organizationId?: string | null
+  advisorId?: string | null
+  query: string
+}
+
+export const clientSearchQuery = ({
+  organizationId,
+  advisorId,
+  query,
+}: ClientSearchParams) => {
+  const queryKey = ["client.search", { organizationId, advisorId, query }]
+  return {
+    queryKey,
+    queryFn: async () => {
+      let url = "/api/v1"
+
+      if (organizationId) {
+        url += `/organizations/${organizationId}`
+      }
+
+      if (advisorId) {
+        url += `/advisors/${advisorId}`
+      }
+
+      const { data } = await axios.get<ClientSearchResults>(
+        `${url}/clientSummaries`,
+        {
+          params: { query },
+        }
+      )
+
+      return data
+    },
+  }
+}
+
+export const updateOpsMoneyMoveRequests = () => {
+  return {
+    mutationKey: ["ops", "mm", "batch.update"],
+    mutationFn: async (payload: OpsRequestBatchUpdatePayload) => {
+      const { data } = await axios.post<MoneyMoveResponse>(
+        "/api/v1/ops/mm-requests/batch-update",
+        payload
+      )
+      return data
+    },
+  }
+}
+
+export const clientQuery = (
+  clientId: string,
+  pathParams: { organizationId: string; advisorId: string }
+) => ({
+  queryKey: ["clients", "detail", clientId],
+  queryFn: async () => {
+    const { organizationId, advisorId } = pathParams
+    const result = await axios.get<ClientDetailResponse>(
+      `/api/v1/organizations/${organizationId}/advisors/${advisorId}/clients/${clientId}`
+    )
+    return result.data
+  },
+  enabled: !!pathParams.organizationId || !!pathParams.advisorId,
+})

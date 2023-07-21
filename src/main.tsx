@@ -8,6 +8,7 @@ import { queryClient } from "./utils/react-query"
 import { router } from "./router"
 import { ErrorBoundary } from "react-error-boundary"
 import { ToastContainer } from "react-toastify"
+import { IntlProvider } from "react-intl"
 import "react-toastify/dist/ReactToastify.css"
 
 import { worker } from "./mocks/browser"
@@ -17,14 +18,16 @@ worker.start().catch((err) => {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ErrorBoundary
-      fallback={<div>App Level ErrorBoundary: Something went wrong</div>}
-    >
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-        <ReactQueryDevtools />
-      </QueryClientProvider>
-      <ToastContainer />
-    </ErrorBoundary>
+    <IntlProvider locale={navigator.language}>
+      <ErrorBoundary
+        fallback={<div>App Level ErrorBoundary: Something went wrong</div>}
+      >
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+          <ReactQueryDevtools />
+        </QueryClientProvider>
+        <ToastContainer />
+      </ErrorBoundary>
+    </IntlProvider>
   </React.StrictMode>
 )
