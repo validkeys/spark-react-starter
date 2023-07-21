@@ -1,10 +1,16 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid"
-import { useState, RefObject, useEffect, useRef } from "react"
+import {
+  useState,
+  RefObject,
+  useEffect,
+  useRef,
+  createContext,
+  useContext,
+} from "react"
 import { clientSearchQuery, useClickAway, useRefPosition } from "@/state"
 import { useQuery } from "@tanstack/react-query"
 import { ClientSearchResults } from "@/types"
 import { createPortal } from "react-dom"
-import { Transition } from "@headlessui/react"
 
 type SearchProps = {
   params: {
@@ -12,6 +18,13 @@ type SearchProps = {
     advisorId: null | string
   }
 }
+
+type SearchContentShape = {
+  tetherRef: RefObject<HTMLElement | HTMLDivElement>
+  contentRef: RefObject<HTMLElement | HTMLDivElement>
+}
+
+const SearchContext = createContext<Partial<SearchContentShape>>({})
 
 const usePosition = (
   targetRef: RefObject<HTMLElement>,
@@ -39,42 +52,35 @@ const usePosition = (
   return { ...contentPosition, ready: positionsInitialized }
 }
 
-const SearchResults = ({
-  tetherRef,
-  contentRef,
-  results,
-}: {
-  tetherRef: RefObject<HTMLElement>
-  contentRef: RefObject<HTMLDivElement>
-  results: ClientSearchResults | null | undefined
-}) => {
+const SearchResults = ({ results }: { results: ClientSearchResults }) => {
+  const { tetherRef, contentRef } = useContext(
+    SearchContext
+  ) as Required<SearchContentShape>
   const { ready, ...position } = usePosition(tetherRef, contentRef)
 
   return (
-    <div ref={contentRef} className={`fixed`} style={position}>
-      <Transition
-        show={ready}
-        enter="transition-opacity duration-75"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-        leave="transition-opacity duration-150"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
-      >
-        <div className="p-5 bg-base-300 shadow-lg text-base w-[300px] h-80 overflow-auto rounded">
-          {results && results.length ? (
-            <ul>
-              {results.map((result) => {
-                return <li key={result.clientId}>{result.clientName}</li>
-              })}
-            </ul>
-          ) : (
-            <>No Search Results</>
-          )}
-        </div>
-      </Transition>
+    <div
+      ref={contentRef}
+      className={`fixed ${ready ? "block" : "hidden -right-full"}`}
+      style={position}
+    >
+      <div className="p-5 bg-base-300 shadow-lg text-base w-[300px] h-80 overflow-auto rounded">
+        {results && results.length ? (
+          <ul>
+            {results.map((result) => {
+              return <li key={result.clientId}>{result.clientName}</li>
+            })}
+          </ul>
+        ) : (
+          <>No Search Results</>
+        )}
+      </div>
     </div>
   )
+}
+
+const SearchResultsPanel = ({ results }: { results: ClientSearchResults }) => {
+  return results.length ? <SearchResults results={results} /> : <></>
 }
 
 export const SearchBar = ({ params }: SearchProps) => {
@@ -94,38 +100,35 @@ export const SearchBar = ({ params }: SearchProps) => {
   )
 
   return (
-    <div className="flex flex-1 justify-center px-2 lg:ml-6 lg:justify-end">
-      <div className="w-full max-w-lg lg:max-w-xs">
-        <label htmlFor="search" className="sr-only">
-          Search
-        </label>
-        <div className="relative text-gray-400 focus-within:text-gray-600">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
+    <SearchContext.Provider value={{ tetherRef: ref, contentRef }}>
+      <div className="flex flex-1 justify-center px-2 lg:ml-6 lg:justify-end">
+        <div className="w-full max-w-lg lg:max-w-xs">
+          <label htmlFor="search" className="sr-only">
+            Search
+          </label>
+          <div className="relative text-gray-400 focus-within:text-gray-600">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <input
+              id="search"
+              className="block w-full rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-gray-900 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 sm:text-sm sm:leading-6"
+              placeholder="Search"
+              type="search"
+              name="search"
+              ref={ref}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
           </div>
-          <input
-            id="search"
-            className="block w-full rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-gray-900 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 sm:text-sm sm:leading-6"
-            placeholder="Search"
-            type="search"
-            name="search"
-            ref={ref}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
         </div>
-      </div>
-      <div className="flex-shrink-0 flex-grow-0 hidden">
-        {query.length &&
-          createPortal(
-            <SearchResults
-              contentRef={contentRef}
-              results={searchResults}
-              tetherRef={ref}
-            />,
+        <div className="flex-shrink-0 flex-grow-0 hidden">
+          {createPortal(
+            <SearchResultsPanel results={searchResults || []} />,
             document.body
           )}
+        </div>
       </div>
-    </div>
+    </SearchContext.Provider>
   )
 }
