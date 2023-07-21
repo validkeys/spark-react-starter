@@ -1,13 +1,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { getOpsMoneyMoveRequests, updateOpsMoneyMoveRequests } from "@/state"
-import { MoneyMoveRequest, MoneyMoveResponse } from "@/types"
+import { MoneyMoveRequest } from "@/types"
 import moment from "moment"
 import { FormattedNumber } from "react-intl"
 import { TableFooter as Pagination } from "@/components/ui/pagination/TableFooter"
 import { RequestIcon } from "./components/RequestIcon"
 import { ReactQueryErrorNotifications } from "@/components/ui/notifications/ReactQueryErrorNotifications"
 import { toast } from "react-toastify"
+import { Heading } from "@/components/ui/page/Heading"
 
 export const Component = () => {
   const batchUpdateMutation = useMutation({
@@ -70,29 +71,29 @@ export const Component = () => {
   return (
     <>
       <ReactQueryErrorNotifications query={batchUpdateMutation} />
-      <div className="spark-container">
-        <div className="ci-page-heading bg-base-300 text-base-content shadow-none">
-          <div className="ci-page-heading-section">Ops: Banking Management</div>
-          <div>
-            <div className="flex flex-row gap-4">
-              <div className="flex-grow"></div>
-              <button
-                className="btn"
-                type="button"
-                onClick={() => markSelected("approve")}
-              >
-                <span>&#10003;</span> Approve
-              </button>
-              <button
-                className="btn btn-error"
-                type="button"
-                onClick={() => markSelected("reject")}
-              >
-                <span>&#88;</span> Reject
-              </button>
-            </div>
+      <Heading className="bg-base-100">
+        <div className="ci-page-heading-section">Ops: Banking Management</div>
+        <div>
+          <div className="flex flex-row gap-4">
+            <div className="flex-grow"></div>
+            <button
+              className="btn"
+              type="button"
+              onClick={() => markSelected("approve")}
+            >
+              <span>&#10003;</span> Approve
+            </button>
+            <button
+              className="btn btn-error"
+              type="button"
+              onClick={() => markSelected("reject")}
+            >
+              <span>&#88;</span> Reject
+            </button>
           </div>
         </div>
+      </Heading>
+      <div className="spark-container">
         <div className="ci-container">
           <div className="flex-1 grid gap-4">
             <div className="grid gap-4">

@@ -5,6 +5,7 @@ import { type RestRequest } from "msw"
 import { db } from "./db"
 import { ApiErrorResponse, ClientSearchResults, ClientSummary } from "@/types"
 import { IModel } from "./types"
+import { getAdvisorClients } from "./helpers"
 
 interface TokenData {
   id: string
@@ -433,6 +434,53 @@ const advisorClientSearch = rest.get(
   }
 )
 
+const clientGet = rest.get(
+  "/api/v1/organizations/:organizationId/advisors/:advisorId/clients/:clientId",
+  function (req, res, ctx) {
+    const client = db.client.findFirst({
+      where: {
+        id: {
+          equals: req.params["clientId"] as string,
+        },
+      },
+    })
+
+    if (!client) {
+      return res(
+        ctx.status(404),
+        ctx.json({
+          errors: [
+            {
+              error: "Not Found",
+              message: "Client not found",
+              statusCode: 404,
+            },
+          ],
+        })
+      )
+    }
+
+    return res(
+      ctx.status(200),
+      ctx.json({
+        client: {
+          ...client,
+          advisor: db.advisor.findFirst({
+            where: {
+              id: { equals: req.params["advisorId"] as string },
+            },
+          }),
+          investmentSummary: db.clientSummary.findFirst({
+            where: {
+              clientId: { equals: client.id },
+            },
+          }),
+        },
+      })
+    )
+  }
+)
+
 export const handlers = [
   sessionGet,
   sessionPost,
@@ -444,4 +492,5 @@ export const handlers = [
   advisorGet,
   opsClientSearch,
   advisorClientSearch,
+  clientGet,
 ]

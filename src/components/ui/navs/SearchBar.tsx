@@ -11,6 +11,7 @@ import { clientSearchQuery, useClickAway, useRefPosition } from "@/state"
 import { useQuery } from "@tanstack/react-query"
 import { ClientSearchResults } from "@/types"
 import { createPortal } from "react-dom"
+import { Link } from "react-router-dom"
 
 type SearchProps = {
   params: {
@@ -68,7 +69,15 @@ const SearchResults = ({ results }: { results: ClientSearchResults }) => {
         {results && results.length ? (
           <ul>
             {results.map((result) => {
-              return <li key={result.clientId}>{result.clientName}</li>
+              return (
+                <li key={result.clientId}>
+                  <Link
+                    to={`/organizations/${result.organizationId}/advisors/${result.advisorId}/clients/${result.clientId}`}
+                  >
+                    {result.clientName}
+                  </Link>
+                </li>
+              )
             })}
           </ul>
         ) : (

@@ -19,6 +19,10 @@ export interface Organization {
 export interface Client {
   id: string
   name: string
+  investmentSummary?: {
+    marketValue: number
+    currencyCode: string
+  }
 }
 
 export interface Role {
@@ -116,4 +120,18 @@ export type DOMRectProps = Omit<DOMRectReadOnly, "toJSON">
 export type OpsRequestBatchUpdatePayload = {
   ids: string[]
   action: "approve" | "reject"
+}
+
+export type ClientDetailResponse = {
+  client: Client & {
+    advisor: Advisor
+  }
+}
+
+export type Currency = "cad" | "usd"
+
+export type NavigationItem = {
+  name: string
+  href: string
+  end?: boolean
 }

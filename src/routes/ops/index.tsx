@@ -10,8 +10,12 @@ export const Component = () => {
       <DaisyTheme theme="luxury">
         <NavBar
           items={[
-            { name: "Dashboard", href: "/ops" },
-            { name: "Banking Management", href: "/ops/banking-management" },
+            { name: "Dashboard", href: "/ops", end: true },
+            {
+              name: "Banking Management",
+              href: "/ops/banking-management",
+              end: true,
+            },
             { name: "Dashboard", href: "/a" },
             { name: "Dashboard", href: "/b" },
           ]}

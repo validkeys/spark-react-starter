@@ -1,4 +1,8 @@
-import { ClientSearchResults, LoginCredentials } from "@/types"
+import {
+  ClientDetailResponse,
+  ClientSearchResults,
+  LoginCredentials,
+} from "@/types"
 import axios from "../utils/fetch"
 import {
   AdvisorApiResponse,
@@ -9,7 +13,6 @@ import {
   OpsRequestBatchUpdatePayload,
 } from "@/types"
 
-// Organization Queries
 export const organizationQuery = (organizationId: string) => ({
   queryKey: ["organizations", organizationId],
   queryFn: async () => {
@@ -148,3 +151,18 @@ export const updateOpsMoneyMoveRequests = () => {
     },
   }
 }
+
+export const clientQuery = (
+  clientId: string,
+  pathParams: { organizationId: string; advisorId: string }
+) => ({
+  queryKey: ["clients", "detail", clientId],
+  queryFn: async () => {
+    const { organizationId, advisorId } = pathParams
+    const result = await axios.get<ClientDetailResponse>(
+      `/api/v1/organizations/${organizationId}/advisors/${advisorId}/clients/${clientId}`
+    )
+    return result.data
+  },
+  enabled: !!pathParams.organizationId || !!pathParams.advisorId,
+})

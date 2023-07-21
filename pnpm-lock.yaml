@@ -20,6 +20,9 @@ dependencies:
   axios:
     specifier: ^1.4.0
     version: 1.4.0
+  country-flag-icons:
+    specifier: ^1.5.7
+    version: 1.5.7
   inflection:
     specifier: ^2.0.1
     version: 2.0.1
@@ -1906,6 +1909,10 @@ packages:
       path-type: 4.0.0
       yaml: 1.10.2
     dev: true
+
+  /country-flag-icons@1.5.7:
+    resolution: {integrity: sha512-AdvXhMcmSp7nBSkpGfW4qR/luAdRUutJqya9PuwRbsBzuoknThfultbv7Ib6fWsHXC43Es/4QJ8gzQQdBNm75A==}
+    dev: false
 
   /cross-spawn@7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}

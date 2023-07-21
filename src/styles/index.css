@@ -22,10 +22,14 @@
   @apply hover:bg-base-300 table-xs;
 }
 
-.ci-page-heading {
-  @apply flex flex-row justify-between w-full bg-base-100 text-base-content font-bold py-6;
-}
+/* .ci-page-heading {
+  @apply w-full p-2 bg-primary shadow-md shadow-base-300 text-primary-content font-bold px-20;
+} */
 
 .ci-page-heading * {
   @apply self-center;
+}
+
+.btn {
+  @apply rounded py-1 px-4;
 }

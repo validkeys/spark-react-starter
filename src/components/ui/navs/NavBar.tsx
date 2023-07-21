@@ -3,11 +3,8 @@ import { Disclosure, Menu, Transition } from "@headlessui/react"
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline"
 import { useCurrentOrganization, useLogout, useSession } from "@/state"
 import { Link, NavLink, useLocation } from "react-router-dom"
-
-type NavigationItem = {
-  name: string
-  href: string
-}
+import { NavigationItem } from "@/types"
+import { classNames } from "@/utils/dom"
 
 type UserNavigationItem = {
   name: string
@@ -16,10 +13,6 @@ type UserNavigationItem = {
 }
 
 const noop = function () {}
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ")
-}
 
 type Props = {
   items: NavigationItem[]
@@ -111,24 +104,26 @@ const NavigationItems = ({
   const { pathname } = location
 
   return type === "desktop" ? (
-    <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
-      {navigationItems.map((item, idx) => (
-        <NavLink
-          key={`${item.name}.${idx}`}
-          to={item.href}
-          className={({ isActive }) => {
-            return classNames(
-              isActive
-                ? "border-b-accent-content text-accent-content"
-                : "border-b-transparent",
-              "text-base-content inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium"
-            )
-          }}
-          end
-        >
-          {item.name}
-        </NavLink>
-      ))}
+    <div className="flex items-center">
+      <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
+        {navigationItems.map((item, idx) => (
+          <NavLink
+            key={`${item.name}.${idx}`}
+            to={item.href}
+            className={({ isActive }) => {
+              return classNames(
+                isActive
+                  ? "border-b-accent-content text-primary-content bg-primary"
+                  : "border-b-transparent text-base-content",
+                " inline-flex items-center border-b-2 py-1 px-2 rounded text-sm font-medium"
+              )
+            }}
+            end={item.end}
+          >
+            {item.name}
+          </NavLink>
+        ))}
+      </div>
     </div>
   ) : (
     <div className="space-y-1 pb-3 pt-2">
