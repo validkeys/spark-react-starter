@@ -11,6 +11,7 @@ export const ReactQueryErrorNotifications = ({
   if (query.isError) {
     if (query.error instanceof AxiosError) {
       const errors = extractErrorMessages(query.error)
+      console.log({ errors })
       return <UiErrorNotifications errors={errors} />
     }
   }

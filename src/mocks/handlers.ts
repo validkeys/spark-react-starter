@@ -262,6 +262,36 @@ const opsMmRequestsList = rest.get(
   }
 )
 
+const opsMmBatchUpdate = rest.post(
+  "/api/v1/ops/mm-requests/batch-update",
+  async (req, res, ctx) => {
+    const body = await req.json<{
+      ids: string[]
+      action: "approve" | "reject"
+    }>()
+
+    const status = body.action === "approve" ? "approved" : "rejected"
+    db.moneyMoveRequest.updateMany({
+      where: {
+        id: {
+          in: body.ids,
+        },
+      },
+      data: {
+        status,
+      },
+    })
+
+    const requests = db.moneyMoveRequest.findMany({
+      where: {
+        id: { in: body.ids },
+      },
+    })
+
+    return res(ctx.status(200), ctx.json({ requests }))
+  }
+)
+
 const orgGet = rest.get(
   "/api/v1/organizations/:organizationId",
   function (req, res, ctx) {
@@ -409,6 +439,7 @@ export const handlers = [
   sessionDestroy,
   permitsList,
   opsMmRequestsList,
+  opsMmBatchUpdate,
   orgGet,
   advisorGet,
   opsClientSearch,

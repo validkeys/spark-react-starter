@@ -112,3 +112,8 @@ export type ClientSummary = {
 export type ClientSearchResults = ClientSummary[]
 
 export type DOMRectProps = Omit<DOMRectReadOnly, "toJSON">
+
+export type OpsRequestBatchUpdatePayload = {
+  ids: string[]
+  action: "approve" | "reject"
+}

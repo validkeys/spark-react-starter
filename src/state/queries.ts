@@ -6,6 +6,7 @@ import {
   PermitApiResponse,
   AuthenticatedResponse,
   MoneyMoveResponse,
+  OpsRequestBatchUpdatePayload,
 } from "@/types"
 
 // Organization Queries
@@ -130,6 +131,19 @@ export const clientSearchQuery = ({
         }
       )
 
+      return data
+    },
+  }
+}
+
+export const updateOpsMoneyMoveRequests = () => {
+  return {
+    mutationKey: ["ops", "mm", "batch.update"],
+    mutationFn: async (payload: OpsRequestBatchUpdatePayload) => {
+      const { data } = await axios.post<MoneyMoveResponse>(
+        "/api/v1/ops/mm-requests/batch-update",
+        payload
+      )
       return data
     },
   }

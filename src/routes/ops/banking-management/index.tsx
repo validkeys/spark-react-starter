@@ -1,82 +1,43 @@
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
-import { getOpsMoneyMoveRequests } from "@/state"
-import { PaginationMeta, MoneyMoveRequest } from "@/types"
-import {
-  ArrowSmallDownIcon,
-  ArrowSmallUpIcon,
-  ArrowsRightLeftIcon,
-} from "@heroicons/react/20/solid"
+import { getOpsMoneyMoveRequests, updateOpsMoneyMoveRequests } from "@/state"
+import { MoneyMoveRequest, MoneyMoveResponse } from "@/types"
 import moment from "moment"
 import { FormattedNumber } from "react-intl"
-
-const RequestIcon = ({ request }: { request: MoneyMoveRequest }) => {
-  if (request.type === "ToBank") {
-    return <ArrowSmallDownIcon className="w-8 h-8 text-red-500" />
-  } else if (request.type === "FromBank") {
-    return <ArrowSmallUpIcon className="w-8 h-8 text-green-400" />
-  } else {
-    return <ArrowsRightLeftIcon className="w-6 h-6 text-accent-content" />
-  }
-}
-
-const Pagination = ({
-  data,
-  onPage,
-}: {
-  data: PaginationMeta
-  onPage: (page: number) => void
-}) => {
-  const numPages = Math.ceil(data.total / data.limit)
-  const currentPage = data.page
-  const start = currentPage * data.limit
-  return (
-    <nav
-      className="flex items-center justify-between border-t px-4 py-3 sm:px-6 bg-base-100"
-      aria-label="Pagination"
-    >
-      <div className="hidden sm:block text-base-content">
-        <p className="text-sm flex gap-1">
-          Showing
-          <span className="font-medium">{start}</span>
-          to
-          <span className="font-medium">{start + data.limit}</span>
-          of
-          <span className="font-medium">{data.total}</span>
-          results
-        </p>
-      </div>
-      <div className="flex flex-1 gap-2 justify-between sm:justify-end">
-        <button
-          disabled={data.page === 0}
-          aria-disabled={data.page === 0}
-          className="btn btn-neutral"
-          onClick={() => onPage(currentPage - 1)}
-        >
-          Previous
-        </button>
-        <button
-          disabled={currentPage >= numPages}
-          aria-disabled={currentPage >= numPages}
-          className="btn btn-neutral"
-          onClick={() => onPage(currentPage + 1)}
-        >
-          Next
-        </button>
-      </div>
-    </nav>
-  )
-}
+import { TableFooter as Pagination } from "@/components/ui/pagination/TableFooter"
+import { RequestIcon } from "./components/RequestIcon"
+import { ReactQueryErrorNotifications } from "@/components/ui/notifications/ReactQueryErrorNotifications"
+import { toast } from "react-toastify"
 
 export const Component = () => {
+  const batchUpdateMutation = useMutation({
+    ...updateOpsMoneyMoveRequests(),
+    onSuccess(data, variables) {
+      toast.success(
+        `${variables.ids.length} requests ${
+          variables.action === "approve" ? "approved" : "rejected"
+        }`
+      )
+    },
+  })
   const [page, setPage] = useState(0)
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const [limit] = useState(10)
 
   const { isLoading, data } = useQuery(getOpsMoneyMoveRequests(page, limit))
 
+  useEffect(() => {
+    if (batchUpdateMutation.isSuccess) {
+      setSelectedItems([])
+    }
+  }, [batchUpdateMutation.isLoading, batchUpdateMutation.isSuccess])
+
   const markSelected = (status: "approve" | "reject") => {
-    console.log("mark selected", status)
+    console.log("mark selected", status, selectedItems)
+    batchUpdateMutation.mutate({
+      ids: selectedItems,
+      action: status,
+    })
   }
 
   const toggleSelectAll = () => {
@@ -107,33 +68,34 @@ export const Component = () => {
   }
 
   return (
-    <div className="spark-container">
-      <div className="ci-page-heading bg-base-300 text-base-content shadow-none">
-        <div className="ci-page-heading-section">Ops: Banking Management</div>
-        <div>
-          <div className="flex flex-row gap-4">
-            <div className="flex-grow"></div>
-            <button
-              className="btn"
-              type="button"
-              onClick={() => markSelected("approve")}
-            >
-              <span>&#10003;</span> Approve
-            </button>
-            <button
-              className="btn btn-error"
-              type="button"
-              onClick={() => markSelected("reject")}
-            >
-              <span>&#88;</span> Reject
-            </button>
+    <>
+      <ReactQueryErrorNotifications query={batchUpdateMutation} />
+      <div className="spark-container">
+        <div className="ci-page-heading bg-base-300 text-base-content shadow-none">
+          <div className="ci-page-heading-section">Ops: Banking Management</div>
+          <div>
+            <div className="flex flex-row gap-4">
+              <div className="flex-grow"></div>
+              <button
+                className="btn"
+                type="button"
+                onClick={() => markSelected("approve")}
+              >
+                <span>&#10003;</span> Approve
+              </button>
+              <button
+                className="btn btn-error"
+                type="button"
+                onClick={() => markSelected("reject")}
+              >
+                <span>&#88;</span> Reject
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="ci-container">
-        <div className="flex-1 grid gap-4">
-          <div className="grid gap-4">
-            <div>
+        <div className="ci-container">
+          <div className="flex-1 grid gap-4">
+            <div className="grid gap-4">
               <table className="table ci-table">
                 <thead>
                   <tr className="h-12 bg-base-300">
@@ -206,16 +168,16 @@ export const Component = () => {
                   })}
                 </tbody>
               </table>
-            </div>
 
-            <Pagination
-              onPage={(pageNum) => setPage(pageNum)}
-              data={data?.meta || { total: 0, limit: 0, page: 0 }}
-            />
+              <Pagination
+                onPage={(pageNum) => setPage(pageNum)}
+                data={data?.meta || { total: 0, limit: 0, page: 0 }}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

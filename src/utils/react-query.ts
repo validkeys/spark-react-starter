@@ -14,7 +14,13 @@ type ExtractErrorInput = AxiosError | Error
 export const extractErrorMessages = (error: ExtractErrorInput): ApiError[] => {
   if (error instanceof AxiosError) {
     const response = error.response as AxiosResponse<ApiErrorResponse>
-    const errors = response.data.errors || []
+    const errors = response.data.errors || [
+      {
+        statusCode: response.status,
+        message: error.message,
+        error: response.statusText,
+      },
+    ]
     return errors
   } else {
     return [
